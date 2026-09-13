@@ -74,3 +74,27 @@ art.
 
 - `401 Unauthorized`: you didn't log in, or the username/password is wrong
 - `403 Forbidden`: you're logged in, but your role isn't allowed to do this
+
+## API Endpoints
+
+### Products: `/api/product`
+
+| Method   | Endpoint                  | Description                | Cashier | Manager |
+|----------|---------------------------|----------------------------|:-------:|:-------:|
+| `GET`    | `/products`               | List all products          | ✅ | ✅ |
+| `GET`    | `/products/{productId}`   | Get one product            | ✅ | ✅ |
+| `POST`   | `/products`               | Create a product           | ❌ | ✅ |
+| `PUT`    | `/products`               | Update a product           | ❌ | ✅ |
+| `PATCH`  | `/products/{productId}`   | Update some fields         | ❌ | ✅ |
+| `DELETE` | `/products/{productId}`   | Delete a product           | ❌ | ✅ |
+
+### Sales: `/api/sale`
+
+| Method   | Endpoint             | Description             | Cashier | Manager |
+|----------|----------------------|-------------------------|:-------:|:-------:|
+| `GET`    | `/sales`             | List all sales          | ✅ | ✅ |
+| `GET`    | `/sales/{saleId}`    | Get one sale            | ✅ | ✅ |
+| `POST`   | `/sales`             | Record a sale           | ✅ | ✅ |
+| `PUT`    | `/sales`             | Update a sale           | ❌ | ✅ |
+| `PATCH`  | `/sales/{saleId}`    | Update some fields      | ❌ | ✅ |
+| `DELETE` | `/sales/{saleId}`    | Delete a sale           | ❌ | ✅ |
