@@ -30,15 +30,7 @@ public class SaleRestController {
 
     @GetMapping("/sales/{salesId}")
     public Sales getSale(@PathVariable int salesId){
-
-        Sales theSale = salesService.findById(salesId);
-
-        if(theSale == null){
-            throw new RuntimeException("Sale with the id of " + salesId + " Could not be found");
-        }
-
-        return theSale;
-
+        return salesService.findById(salesId);
     }
 
     @PostMapping("/sales")
@@ -67,10 +59,6 @@ public class SaleRestController {
 
         Sales tempSale = salesService.findById(saleId);
 
-        if(tempSale == null){
-            throw new RuntimeException("Sale with the id of " + saleId + " Could not be found");
-        }
-
         if(patchPayload.containsKey("id")){
             throw new RuntimeException("Body cant contain the id key");
         }
@@ -85,12 +73,6 @@ public class SaleRestController {
 
     @DeleteMapping("/sales/{saleId}")
     public String deleteSale(@PathVariable int saleId){
-
-        Sales theSale = salesService.findById(saleId);
-
-        if(theSale == null){
-            throw new RuntimeException("Sale with the id of " + saleId + " Could not be found");
-        }
 
         salesService.deleteById(saleId);
 

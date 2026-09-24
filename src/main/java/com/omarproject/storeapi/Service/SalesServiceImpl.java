@@ -2,6 +2,7 @@ package com.omarproject.storeapi.Service;
 
 import com.omarproject.storeapi.DAO.SalesRepository;
 import com.omarproject.storeapi.Entity.Sales;
+import com.omarproject.storeapi.Exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class SalesServiceImpl implements SalesService{
     @Override
     public Sales findById(int theId) {
         return salesRepository.findById(theId)
-                .orElseThrow(() -> new RuntimeException("Sale with the id of " + theId + " Could not be found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Sale", theId));
     }
 
     @Override
@@ -35,6 +36,10 @@ public class SalesServiceImpl implements SalesService{
 
     @Override
     public void deleteById(int theId) {
+        if (!salesRepository.existsById(theId)) {
+            throw new ResourceNotFoundException("Sale", theId);
+        }
+
         salesRepository.deleteById(theId);
     }
 }

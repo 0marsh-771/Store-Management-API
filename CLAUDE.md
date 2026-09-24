@@ -18,7 +18,7 @@ Project memory for Claude Code. Read this first in every session.
 ## Commands
 
 ```bash
-./mvnw spring-boot:run      # run (needs local MySQL with database store_directory)
+./mvnw spring-boot:run      # run (needs local MySQL running; the store_directory DB is auto-created via createDatabaseIfNotExist=true)
 ./mvnw test                 # tests (the only test is contextLoads, and it needs MySQL running)
 ./mvnw clean package        # build the jar
 ```
@@ -33,6 +33,7 @@ DAO/       Spring Data repositories: XxxRepository extends JpaRepository<Entity,
 Service/   Interface + Impl pairs: ProductService/ProductServiceImpl, SalesService/SalesServiceImpl
 Rest/      @RestController classes: ProductsRestController (/api/product), SaleRestController (/api/sale)
 Security/  DemoSecurityConfig: password encoder, JDBC users, URL/role rules
+Exception/ ResourceNotFoundException + GlobalExceptionHandler (@RestControllerAdvice → ProblemDetail)
 resources/ application.properties, data.sql (schema + seed data, runs on every startup)
 ```
 
@@ -54,7 +55,11 @@ Request flow: **Controller → Service interface → ServiceImpl → Repository 
   - A no-arg constructor plus a constructor with all fields except `id`
   - Getters and setters written out by hand (no Lombok). Getters come first, then setters, under `// getters` / `// setters` comments.
   - Money is `BigDecimal`, dates are `LocalDate`
-- **Service layer:** the interface exposes `findAll`, `findById`, `save` and `deleteById`. `findById` throws when nothing is found (`orElseThrow`) and never returns null.
+- **Service layer:** the interface exposes `findAll`, `findById`, `save` and `deleteById`. `findById` and `deleteById` throw `ResourceNotFoundException("<Name>", id)` for a missing id and never return null. Controllers don't null-check service results.
+- **Errors:**
+  - Exceptions live in the `Exception` package.
+  - `GlobalExceptionHandler` (a `@RestControllerAdvice`) maps them to Spring's built-in `ProblemDetail` responses (RFC 9457).
+  - For a new error type, add an exception class plus one `@ExceptionHandler` method. Don't return error bodies by hand from controllers.
 - **REST controller pattern** (base path `/api/<entity>`, collection path `/<entities>`):
   - `GET /xs`: list all
   - `GET /xs/{id}`: get one
@@ -85,13 +90,10 @@ Request flow: **Controller → Service interface → ServiceImpl → Repository 
 ## Known issues / tech debt (don't fix unless asked, but be aware)
 
 - **The DB password is hardcoded and committed** in `application.properties`. It should move to an env var (`${DB_PASSWORD}`).
-- **No error handling:**
-  - Missing ids throw a raw `RuntimeException`, so clients get a 500 instead of a 404.
-  - The `if (x == null)` checks in the controllers are dead code, because `findById` already throws.
-  - The planned fix is a custom `NotFoundException` plus a `@RestControllerAdvice`.
+- The PATCH "body can't contain id" check still throws a raw `RuntimeException`, so clients get a 500. It should be a 400, handled with its own exception in `GlobalExceptionHandler`.
 - `PUT` with a missing or `0` id **creates** a new row instead of rejecting the request.
 - There's no request validation (`jakarta.validation`), and entities are exposed directly without DTOs.
-- The services have no `@Transactional`. `deleteById` in the controllers runs a separate `findById` first to check that the row exists.
+- The services have no `@Transactional`.
 - Naming is inconsistent:
   - Entity `Product` (singular) vs `Sales` (plural)
   - Controller `ProductsRestController` vs `SaleRestController`

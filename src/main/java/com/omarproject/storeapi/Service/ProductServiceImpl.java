@@ -1,6 +1,7 @@
 package com.omarproject.storeapi.Service;
 import com.omarproject.storeapi.DAO.ProductRepository;
 import com.omarproject.storeapi.Entity.Product;
+import com.omarproject.storeapi.Exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,8 +24,8 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public Product findById(int theId) {
-        return productRepository.findById(theId).
-                orElseThrow(() -> new RuntimeException("Product with the id of " + theId + " Could not be found"));
+        return productRepository.findById(theId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", theId));
     }
 
     @Override
@@ -34,6 +35,10 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public void deleteById(int theId) {
+        if (!productRepository.existsById(theId)) {
+            throw new ResourceNotFoundException("Product", theId);
+        }
+
         productRepository.deleteById(theId);
     }
 }

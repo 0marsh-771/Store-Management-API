@@ -30,15 +30,7 @@ public class ProductsRestController {
 
     @GetMapping("/products/{productId}")
     public Product getProduct(@PathVariable int productId){
-
-        Product theProduct = productService.findById(productId);
-
-        if(theProduct == null){
-            throw new RuntimeException("Product with the id of " + productId + " Could not be found");
-        }
-
-        return theProduct;
-
+        return productService.findById(productId);
     }
 
     @PostMapping("/products")
@@ -67,10 +59,6 @@ public class ProductsRestController {
 
         Product tempProduct = productService.findById(productId);
 
-        if(tempProduct == null){
-            throw new RuntimeException("Product with the id of " + productId + " Could not be found");
-        }
-
         if(patchPayload.containsKey("id")){
             throw new RuntimeException("Body cant contain the id key");
         }
@@ -85,12 +73,6 @@ public class ProductsRestController {
 
     @DeleteMapping("/products/{productId}")
     public String deleteProduct(@PathVariable int productId){
-
-        Product theProduct = productService.findById(productId);
-
-        if(theProduct == null){
-            throw new RuntimeException("Product with the id of " + productId + " Could not be found");
-        }
 
         productService.deleteById(productId);
 

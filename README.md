@@ -167,7 +167,6 @@ curl -u "John Smith:store123" -X POST http://localhost:8080/api/sale/sales \
 
 ## Future Improvements
 
-- Return proper `404 Not Found` responses with a global exception handler
 - Validate request bodies (e.g. price and quantity must be positive)
 - Link sales to the products that were sold
 - Add pagination and filtering (by category, by date range)
